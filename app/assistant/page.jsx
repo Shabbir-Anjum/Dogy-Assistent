@@ -1,13 +1,35 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
-import { motion } from 'framer-motion';
-import { Camera, Send } from 'lucide-react';
-
+import { motion, AnimatePresence } from 'framer-motion';
+import { Camera, Send, LogOut, Settings } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useDispatch, useSelector } from 'react-redux';
+import { setUser, setUserdata } from '@/store/ChatSlice';
+import ProtectedRoute from '@/components/ProtectedRoute';
 
 export default function AssistantPage() {
   const [inputMessage, setInputMessage] = useState('');
   const [chats, setChats] = useState([]);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const storedUserData = localStorage.getItem('user');
+  const userData = storedUserData ? JSON.parse(storedUserData) : null;
+  const dropdownRef = useRef(null);
+  const router = useRouter();
+  const dispatch = useDispatch();
+ console.log(userData)
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -22,6 +44,13 @@ export default function AssistantPage() {
     setChats([...chats, { id: chats.length + 1, type: 'user', content: question }]);
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('user');
+    dispatch(setUser(null));
+    dispatch(setUserdata(null));
+    router.push('/sign-in');
+  };
+
   const questions = [
     'Find cheapest deal',
     'Give training advice',
@@ -30,20 +59,51 @@ export default function AssistantPage() {
   ];
 
   return (
+    <ProtectedRoute>
     <div className="min-h-screen bg-[#FDFAF3] flex flex-col">
       {/* Header */}
       <header className="shadow-md p-4">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <div>{/* Empty right side */}</div>
-          <div className="flex items-center space-x-4 border px-2 rounded-xl border-[#E7DECD]">
-            <Image
-              src="/logo.svg"
-              alt="User Avatar"
-              width={40}
-              height={40}
-              className="rounded-full"
-            />
-            <span className="font-medium pr-10">John Doe</span>
+          <div>{/* Empty left side */}</div>
+          <div className="relative" ref={dropdownRef}>
+            <button
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              className="flex items-center space-x-4 border px-2 py-1 rounded-xl border-[#E7DECD] hover:bg-[#E7DECD] transition-colors duration-200"
+            >
+              <img
+                src={userData?.picture || "/default-avatar.png"}
+                alt="User Avatar"
+                width={40}
+                height={40}
+                className="rounded-full"
+              />
+              <span className="font-medium pr-10">{userData?.name || "User"}</span>
+            </button>
+            <AnimatePresence>
+              {isDropdownOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className="absolute right-0 mt-2 w-48 z-50 bg-gray-800 rounded-md shadow-lg py-1 "
+                >
+                  <button
+                    onClick={() => {/* Handle settings */}}
+                    className="block px-4 py-2 text-sm text-gray-200 hover:bg-gray-700 w-full text-left"
+                  >
+                    <Settings className="inline-block mr-2" size={16} />
+                    Settings
+                  </button>
+                  <button
+                    onClick={handleLogout}
+                    className="block px-4 py-2 text-sm text-gray-200 hover:bg-gray-700 w-full text-left"
+                  >
+                    <LogOut className="inline-block mr-2" size={16} />
+                    Logout
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </div>
       </header>
@@ -73,8 +133,6 @@ export default function AssistantPage() {
           </header>
         </motion.div>
 
-       
-
         {/* Chat Messages */}
         <div className="flex-grow overflow-y-auto space-y-4 mb-4">
           {chats.map((chat) => (
@@ -97,8 +155,9 @@ export default function AssistantPage() {
             </motion.div>
           ))}
         </div>
- {/* Quick Questions Section */}
- {chats.length === 0 && (
+
+        {/* Quick Questions Section */}
+        {chats.length === 0 && (
           <div className="flex flex-wrap gap-2 justify-center mb-4 px-2">
             {questions.map((question, index) => (
               <motion.button
@@ -112,6 +171,7 @@ export default function AssistantPage() {
             ))}
           </div>
         )}
+
         {/* Input Area */}
         <form onSubmit={handleSubmit} className="flex items-center space-x-2">
           <motion.button
@@ -140,5 +200,6 @@ export default function AssistantPage() {
         </form>
       </main>
     </div>
+    </ProtectedRoute>
   );
 }

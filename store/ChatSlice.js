@@ -31,7 +31,7 @@ const chatSlice = createSlice({
     },
     setUserdata: (state, action) => {
       state.userdata = action.payload;
-     
+     console.log('chatslice',state.userdata )
     },   
   },
 });

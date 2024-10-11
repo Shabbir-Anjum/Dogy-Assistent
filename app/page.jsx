@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { toast } from 'react-toastify';
 import { motion } from 'framer-motion';
+import ProtectedRoute from '@/components/ProtectedRoute';
 
 export default function DogyHomePage() {
   const [formData, setFormData] = useState({
@@ -57,6 +58,7 @@ export default function DogyHomePage() {
   };
 
   return (
+    <ProtectedRoute>
     <motion.div 
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
@@ -214,5 +216,6 @@ export default function DogyHomePage() {
         </motion.button>
       </form>
     </motion.div>
+    </ProtectedRoute>
   );
 }

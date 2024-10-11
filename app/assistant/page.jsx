@@ -91,7 +91,7 @@ export default function AssistantPage() {
     <ProtectedRoute>
       <div className="min-h-screen bg-[#FDFAF3] flex flex-col">
         {/* Header */}
-        <header className="shadow-md p-4">
+        <header className=" p-4">
           <div className="max-w-7xl mx-auto flex justify-between items-center">
             <div>{/* Empty left side */}</div>
             <div className="relative" ref={dropdownRef}>
@@ -138,7 +138,7 @@ export default function AssistantPage() {
         </header>
 
         {/* Chat Container */}
-        <main className="flex-grow flex flex-col max-w-3xl mx-auto w-full p-4">
+        <main className="flex-grow flex flex-col max-w-3xl mx-auto bg-white border-[#E7DECD] border-[2px] mb-2 w-full p-4">
          {/* Dogy Logo Header */}
          <motion.div
             initial={{ opacity: 0, y: -20 }}
@@ -175,7 +175,7 @@ export default function AssistantPage() {
                 <div
                   className={`max-w-[70%] p-3 rounded-lg ${
                     chat.type === 'user'
-                      ? 'bg-gray-100'
+                      ? 'bg-[#F7CDDC]'
                       : 'bg-[#FDFAF3] text-gray-800'
                   }`}
                 >
@@ -270,7 +270,7 @@ export default function AssistantPage() {
             <motion.button
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
-              className="p-2 bg-gray-200 rounded-full"
+              className="p-2 "
               type="button"
             >
               <Camera size={24} />
@@ -280,7 +280,7 @@ export default function AssistantPage() {
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
               placeholder="Type your message..."
-              className="flex-grow p-2 border border-gray-300 outline-none rounded-md focus:ring-2 focus:ring-[#E7DECD] focus:border-transparent"
+              className="flex-grow p-2 border border-[#E7DECD] outline-none rounded-md focus:ring-2 focus:ring-[#E7DECD] focus:border-transparent"
             />
             <motion.button
               whileHover={{ scale: 1.05 }}

@@ -45,7 +45,6 @@ export default function AssistantPage() {
     e.preventDefault();
     if (inputMessage.trim()) {
       setChats([...chats, { id: chats.length + 1, type: 'user', content: inputMessage }]);
-      
       try {
         const response = await axios.post('/api', { message: inputMessage });
         const { chat_response, products: newProducts, locations: newLocations } = response.data;

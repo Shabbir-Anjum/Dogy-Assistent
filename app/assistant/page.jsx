@@ -47,7 +47,7 @@ export default function AssistantPage() {
       setChats([...chats, { id: chats.length + 1, type: 'user', content: inputMessage }]);
       
       try {
-        const response = await axios.post('/process-chat', { message: inputMessage });
+        const response = await axios.post('http://20.55.71.228/process-chat', { message: inputMessage });
         const { chat_response, products: newProducts, locations: newLocations } = response.data;
         
         setChats(prevChats => [

@@ -1,5 +1,4 @@
-'use client';
-
+'use client'
 import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -8,12 +7,15 @@ import { useRouter } from 'next/navigation';
 import { useDispatch, useSelector } from 'react-redux';
 import { setUser, setUserdata } from '@/store/ChatSlice';
 import ProtectedRoute from '@/components/ProtectedRoute';
+import axios from 'axios';
 
 export default function AssistantPage() {
   const [inputMessage, setInputMessage] = useState('');
   const [chats, setChats] = useState([]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [userData, setUserData] = useState(null);
+  const [products, setProducts] = useState([]);
+  const [locations, setLocations] = useState([]);
   const dropdownRef = useRef(null);
   const router = useRouter();
   const dispatch = useDispatch();
@@ -39,17 +41,36 @@ export default function AssistantPage() {
     };
   }, []);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (inputMessage.trim()) {
       setChats([...chats, { id: chats.length + 1, type: 'user', content: inputMessage }]);
+      
+      try {
+        const response = await axios.post('/process-chat', { message: inputMessage });
+        const { chat_response, products: newProducts, locations: newLocations } = response.data;
+        
+        setChats(prevChats => [
+          ...prevChats,
+          { id: prevChats.length + 1, type: 'assistant', content: chat_response }
+        ]);
+        setProducts(newProducts);
+        setLocations(newLocations);
+      } catch (error) {
+        console.error('Error processing chat:', error);
+        setChats(prevChats => [
+          ...prevChats,
+          { id: prevChats.length + 1, type: 'assistant', content: 'Sorry, I encountered an error. Please try again.' }
+        ]);
+      }
+
       setInputMessage('');
     }
   };
 
   const handleQuestionClick = (question) => {
     setInputMessage(question);
-    setChats([...chats, { id: chats.length + 1, type: 'user', content: question }]);
+    handleSubmit({ preventDefault: () => {} });
   };
 
   const handleLogout = () => {
@@ -118,8 +139,8 @@ export default function AssistantPage() {
 
         {/* Chat Container */}
         <main className="flex-grow flex flex-col max-w-3xl mx-auto w-full p-4">
-          {/* Dogy Logo Header */}
-          <motion.div
+         {/* Dogy Logo Header */}
+         <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
@@ -163,6 +184,70 @@ export default function AssistantPage() {
               </motion.div>
             ))}
           </div>
+
+          {/* Product Suggestions */}
+          {products.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="mb-4"
+            >
+              <h3 className="text-lg font-semibold mb-2">Product Suggestions:</h3>
+              <div className="flex overflow-x-auto space-x-4 pb-4">
+                {products.map((product, index) => (
+                  <motion.div
+                    key={index}
+                    whileHover={{ scale: 1.05 }}
+                    className="flex-shrink-0 w-64 bg-white bg-opacity-50 rounded-lg shadow-lg p-4"
+                  >
+                    <Image
+                      src={product.graphicUrl}
+                      alt={product.name}
+                      width={200}
+                      height={200}
+                      className="w-full h-40 object-cover rounded-md mb-2"
+                    />
+                    <h4 className="font-semibold">{product.name}</h4>
+                    <p className="text-sm text-gray-600">{product.description}</p>
+                    <p className="text-lg font-bold mt-2">{product.price}</p>
+                    <a
+                      href={product.productUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-2 inline-block bg-blue-500 text-white px-4 py-2 rounded-md text-sm"
+                    >
+                      View Product
+                    </a>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+          )}
+
+          {/* Locations */}
+          {locations.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="mb-4"
+            >
+              <h3 className="text-lg font-semibold mb-2">Nearby Stores:</h3>
+              <ul className="space-y-2">
+                {locations.map((location, index) => (
+                  <motion.li
+                    key={index}
+                    whileHover={{ scale: 1.02 }}
+                    className="bg-white bg-opacity-50 rounded-lg shadow p-3"
+                  >
+                    <p className="font-semibold">{location.name}</p>
+                    <p className="text-sm text-gray-600">{location.address}</p>
+                  </motion.li>
+                ))}
+              </ul>
+            </motion.div>
+          )}
 
           {/* Quick Questions Section */}
           {chats.length === 0 && (

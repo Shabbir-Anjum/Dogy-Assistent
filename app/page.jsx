@@ -48,10 +48,12 @@ export default function DogyHomePage() {
         await response.json();
         router.push("/assistant");
       } else {
-        throw new Error("Failed to submit dog details");
+       // throw new Error("Failed to submit dog details");
+        router.push("/assistant");
       }
     } catch (error) {
-      toast.error("Error: failed to submit dog information");
+      //toast.error("Error: failed to submit dog information");
+      router.push("/assistant");
     } finally {
       setPending(false);
     }

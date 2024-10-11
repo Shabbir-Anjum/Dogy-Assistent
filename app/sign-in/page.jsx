@@ -8,7 +8,6 @@ import { useEffect, useRef } from 'react';
 import { useDispatch } from 'react-redux';
 
 const SignIn = () => {
-  
   const router = useRouter();
   const dispatch = useDispatch();
   const googleButtonRef1 = useRef(null);
@@ -49,10 +48,12 @@ const SignIn = () => {
       });
 
       [googleButtonRef1, googleButtonRef2].forEach(ref => {
-        window.google.accounts.id.renderButton(
-          ref.current,
-          { theme: 'filled_black', size: 'large', width: '100%', type: 'standard' }
-        );
+        if (ref.current) {
+          window.google.accounts.id.renderButton(
+            ref.current,
+            { theme: 'filled_black', size: 'large', width: '100%', type: 'standard' }
+          );
+        }
       });
     }
   };
@@ -63,8 +64,6 @@ const SignIn = () => {
 
     // Extract user information
     const { name, email, picture } = decodedToken;
-    
-    console.log(name, email, picture);
 
     // Store user information in localStorage
     const userData = { name, email, picture };
@@ -73,7 +72,6 @@ const SignIn = () => {
     // Update Redux state
     dispatch(setUser(email));
     dispatch(setUserdata(userData));
-    console.log(userData)
 
     // Redirect to home page
     router.push('/');

@@ -46,7 +46,7 @@ export default function AssistantPage() {
     if (inputMessage.trim()) {
       setChats([...chats, { id: chats.length + 1, type: 'user', content: inputMessage }]);
       try {
-        const response = await axios.post('/api', { message: inputMessage });
+        const response = await axios.post('https://faiqkhan.freeddns.org/process-chat', { message: inputMessage });
         const { chat_response, products: newProducts, locations: newLocations } = response.data;
         
         setChats(prevChats => [
